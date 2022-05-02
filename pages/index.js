@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+
 // import ReactDOM from 'react-dom';
 import { Formik, Form, useField, useFormikContext } from 'formik';
 import * as Yup from 'yup';
@@ -75,83 +77,93 @@ const MySelect = ({ label, ...props }) => {
 
 // And now we can use these
 const SignupForm = () => {
+  const [createdLink, setCreatedLink] = useState('none Yet');
+  const [res, setRes] = useState([]);
+  const [resultDisplay, setResultDisplay] = useState('');
   return (
     <>
-      <h1>Subscribe!</h1>
+      <h1>Beta Access Request Gen!</h1>
       <Formik
         initialValues={{
-          firstName: '',
-          lastName: '',
+          // firstName: '',
+          // lastName: '',
           email: '',
-          acceptedTerms: false, // added for our checkbox
-          jobType: '', // added for our select
+          // acceptedTerms: false, // added for our checkbox
+          // pmuid: '', // added for our select
         }}
         validationSchema={Yup.object({
-          firstName: Yup.string()
-            .max(15, 'Must be 15 characters or less')
-            .required('Required'),
-          lastName: Yup.string()
-            .max(20, 'Must be 20 characters or less')
-            .required('Required'),
+          // firstName: Yup.string()
+          //   .max(15, 'Must be 15 characters or less')
+          //   .required('Required'),
+          // lastName: Yup.string()
+          //   .max(20, 'Must be 20 characters or less')
+          //   .required('Required'),
           email: Yup.string()
             .email('Invalid email addresss`')
             .required('Required'),
-          acceptedTerms: Yup.boolean()
-            .required('Required')
-            .oneOf([true], 'You must accept the terms and conditions.'),
-          jobType: Yup.string()
-            // specify the set of valid values for job type
-            // @see http://bit.ly/yup-mixed-oneOf
-            .oneOf(
-              ['designer', 'development', 'product', 'other'],
-              'Invalid Job Type'
-            )
-            .required('Required'),
+          // acceptedTerms: Yup.boolean()
+          //   .required('Required')
+          //   .oneOf([true], 'You must accept the terms and conditions.'),
+          // pmuid: Yup.string()
+          //   // specify the set of valid values for job type
+          //   // @see http://bit.ly/yup-mixed-oneOf
+          //   .oneOf(
+          //     ['designer', 'development', 'product', 'other'],
+          //     'Invalid Job Type'
+          //   )
+          //   .required('Required'),
         })}
         onSubmit={async (values, { setSubmitting }) => {
-          await new Promise((r) => setTimeout(r, 500));
+          async function postData(url = '', data = {}) {
+            const response = await fetch(url, {
+              method: 'POST',
+              body: JSON.stringify(data),
+            });
+            return response.json();
+          }
+          const result = await postData('/api/pmuid', values);
+          result.length
+            ? setResultDisplay('Results:')
+            : setResultDisplay('No results found!');
+          console.log(
+            '🚀 ~ file: index.js ~ line 126 ~ onSubmit={ ~ result',
+            result
+          );
+          setRes(result);
           setSubmitting(false);
         }}
       >
         <Form>
           <MyTextInput
-            label="First Name"
-            name="firstName"
-            type="text"
-            placeholder="Jane"
-          />
-          <MyTextInput
-            label="Last Name"
-            name="lastName"
-            type="text"
-            placeholder="Doe"
-          />
-          <MyTextInput
-            label="Email Address"
+            label="PM Email"
             name="email"
             type="email"
-            placeholder="jane@formik.com"
+            placeholder="Enter PM User Email"
           />
-          <MySelect label="Job Type" name="jobType">
+          <MySelect label="PM" name="pmuid">
             <option value="">Select a job type</option>
             <option value="designer">Designer</option>
             <option value="development">Developer</option>
             <option value="product">Product Manager</option>
             <option value="other">Other</option>
           </MySelect>
-          <MyCheckbox name="acceptedTerms">
+          {/* <MyCheckbox name="acceptedTerms">
             I accept the terms and conditions
-          </MyCheckbox>
-
+          </MyCheckbox> */}
+          <br />
           <button type="submit">Submit</button>
         </Form>
       </Formik>
+      {/* <div>{resultDisplay}</div> */}
+      <div>
+        <Link
+          href={`https://bigcommercecloud.atlassian.net/secure/CreateIssueDetails!init.jspa?pid=10044&issuetype=10002&priority=3&projectkey=DEVDOCS&customfield10014=DEVDOCS-3603&description=*Link%20to%20request%20in%20%5B%23beta-access-requests%7Chttps%3A%2F%2Fbigcommerce.slack.com%2Farchives%2FC035BREBJ65%5D%3A*%0A*%20%0A%0A*Email%20address(es)%20of%20requesting%20users%3A*%0A*%20%0A&summary=Access%20Request%20-%20PROJECT-NAME&customfield_10062=${res[0]?.accountId}`}
+        >
+          Link
+        </Link>
+      </div>
     </>
   );
 };
-
-// function App() {
-//   return <SignupForm />;
-// }
 
 export default SignupForm;
