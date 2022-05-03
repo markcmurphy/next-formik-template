@@ -3,7 +3,8 @@ import fetch from 'node-fetch';
 
 export default function handler(req, res) {
   if (req.method === 'POST') {
-    let pmEmail = JSON.parse(req.body).email;
+    let name = JSON.parse(req.body);
+    console.log('🚀 ~ file: names.js ~ line 7 ~ handler ~ name', name);
 
     // async function getUserByEmail(email) {
     function manageErrors(response) {
@@ -26,16 +27,16 @@ export default function handler(req, res) {
     };
 
     fetch(
-      `https://bigcommercecloud.atlassian.net/rest/api/3/user/search?query=${pmEmail}`,
+      `https://bigcommercecloud.atlassian.net/rest/api/3/user/picker?query=${name}`,
       requestOptions
     )
       .then((response) => response.json())
       .then((data) => res.send(data))
       .catch((error) => console.log(error));
-    // }
-
-    // let projectId = JSON.parse(req.body).projectId;
-    // let branchId = JSON.parse(req.body).branch;
-    // res.status(200).json({ pmuid: '55555' });
   }
+
+  // let projectId = JSON.parse(req.body).projectId;
+  // let branchId = JSON.parse(req.body).branch;
+  // res.status(200).json({ pmuid: '55555' });
+  //   }
 }
